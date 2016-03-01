@@ -14,7 +14,8 @@ class MessageProxyActor extends Actor {
 
   override def receive: Receive = {
     case ServerMessageCmd(buffer) =>
-      clientSet.foreach(channel => if (channel.isWritable) channel.writeAndFlush(buffer))
+      clientSet.foreach(channel => if (channel.isWritable) channel.writeAndFlush(buffer.duplicate().retain()))
+      buffer.release()
     case ClientSocketChannelCreatedCmd(channel) =>
       clientSet += channel
     case ClientSocketChannelCloseCmd(channel) =>
